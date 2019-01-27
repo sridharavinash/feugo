@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/labstack/echo"
 	"golang.org/x/net/html"
 )
 
@@ -29,6 +30,19 @@ type APIResponse struct {
 }
 
 func main() {
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		names, err := getNames()
+		if err != nil {
+			return c.String(http.StatusInternalServerError, fmt.Sprintf("Error in GET %v", err))
+		}
+		return c.String(http.StatusOK, names)
+	})
+
+	e.Logger.Fatal(e.Start(":3434"))
+}
+
+func getNames() (string, error) {
 	apikey := os.Getenv("PHISH_NET_API")
 
 	url := fmt.Sprintf("https://api.phish.net/v3/setlist/random?apikey=%s", apikey)
@@ -37,14 +51,12 @@ func main() {
 
 	req, err := http.NewRequest("GET", url, payload)
 	if err != nil {
-		fmt.Println("Error creating request")
-		os.Exit(1)
+		return "", err
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("Error getting response")
-		os.Exit(1)
+		return "", err
 	}
 
 	defer res.Body.Close()
@@ -52,13 +64,12 @@ func main() {
 
 	var apiResponse APIResponse
 	if err := json.Unmarshal(body, &apiResponse); err != nil {
-		fmt.Printf("Error Unmarshalling %v\n", err)
+		return "", err
 	}
 
 	doc, err := html.Parse(strings.NewReader(apiResponse.ResponseData.Data[0].SetlistDataHTML))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return "", err
 	}
 	var f func(*html.Node)
 	var songs []string
@@ -79,6 +90,5 @@ func main() {
 	f(doc)
 
 	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
-	fmt.Println(randName)
-
+	return randName, nil
 }
