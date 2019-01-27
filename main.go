@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -29,17 +31,35 @@ type APIResponse struct {
 	ResponseData *ResponseData `json:"response"`
 }
 
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
 func main() {
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		names, err := getNames()
-		if err != nil {
-			return c.String(http.StatusInternalServerError, fmt.Sprintf("Error in GET %v", err))
-		}
-		return c.String(http.StatusOK, names)
-	})
+	e.Static("/static", "assets")
+
+	t := &Template{
+		templates: template.Must(template.ParseGlob("public/views/*.html")),
+	}
+
+	e.Renderer = t
+
+	e.GET("/", indexRender)
 
 	e.Logger.Fatal(e.Start(":3434"))
+}
+
+func indexRender(c echo.Context) error {
+	names, err := getNames()
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, "index", fmt.Sprintf("Error in GET %v", err))
+	}
+	return c.Render(http.StatusOK, "index.html", names)
 }
 
 func getNames() (string, error) {
