@@ -64,6 +64,10 @@ func indexRender(c echo.Context) error {
 
 func getNames() (string, error) {
 	apikey := os.Getenv("PHISH_NET_API")
+	if apikey == "" {
+		fmt.Println("No Phish.net API env variable set")
+		os.Exit(1)
+	}
 
 	url := fmt.Sprintf("https://api.phish.net/v3/setlist/random?apikey=%s", apikey)
 
