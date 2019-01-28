@@ -9,20 +9,19 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 
+	"github.com/gosimple/slug"
 	"github.com/labstack/echo"
-	"golang.org/x/net/html"
 )
 
-type SetListItem struct {
-	SetlistDataHTML string `json:"setlistdata"`
+type SongItem struct {
+	Song string `json:"song"`
 }
 
 type ResponseData struct {
-	Count int           `json:"count"`
-	Data  []SetListItem `json:"data"`
+	Count int        `json:"count"`
+	Data  []SongItem `json:"data"`
 }
 
 type APIResponse struct {
@@ -73,7 +72,7 @@ func getNames() (string, error) {
 		os.Exit(1)
 	}
 
-	url := fmt.Sprintf("https://api.phish.net/v3/setlist/random?apikey=%s", apikey)
+	url := fmt.Sprintf("https://api.phish.net/v3/jamcharts/all?apikey=%s", apikey)
 
 	payload := strings.NewReader("{}")
 
@@ -95,28 +94,18 @@ func getNames() (string, error) {
 		return "", err
 	}
 
-	doc, err := html.Parse(strings.NewReader(apiResponse.ResponseData.Data[0].SetlistDataHTML))
-	if err != nil {
-		return "", err
-	}
-	var f func(*html.Node)
 	var songs []string
-	pattern := regexp.MustCompile("http://phish.net/song/(.*)")
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			for _, attr := range n.Attr {
-				c := pattern.FindStringSubmatch(attr.Val)
-				if c != nil {
-					songs = append(songs, c[1])
-				}
-			}
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
+	fullSongs := apiResponse.ResponseData.Data
+	for i := 0; i < len(fullSongs); i++ {
+		songs = append(songs, makeSlug(fullSongs[i].Song))
 	}
-	f(doc)
 
 	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
 	return randName, nil
+}
+
+func makeSlug(s string) string {
+	tempString := strings.ToLower(s)
+
+	return slug.Make(tempString)
 }

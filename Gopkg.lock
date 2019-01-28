@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:e1aa8e520787bfd8623c7df394352be3183ef207039cfb513ba40dc00c82fa6d"
+  name = "github.com/gosimple/slug"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "42ac18c34c2c6f4843fa48167317dcaa9416d1e2"
+  version = "v1.4.2"
+
+[[projects]]
   digest = "1:0b0e8b69ec051f6ac1c839b6fcd0bbf34496ee39d6b348f9486f42464ed1401d"
   name = "github.com/labstack/echo"
   packages = ["."]
@@ -86,8 +94,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/gosimple/slug",
     "github.com/labstack/echo",
-    "golang.org/x/net/html",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
