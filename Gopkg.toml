@@ -26,9 +26,7 @@
 
 
 [metadata.heroku]
-    root-package = "github.com/sridharavinash/feugo"
-    go-version = "1.11.4"
-    install = [ "./..." ]
+    root-package = "feugo"
 
 [[constraint]]
   name = "github.com/labstack/echo"
