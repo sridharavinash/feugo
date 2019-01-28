@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gosimple/slug"
 	"github.com/labstack/echo"
@@ -100,6 +101,7 @@ func getNames() (string, error) {
 		songs = append(songs, makeSlug(fullSongs[i].Song))
 	}
 
+	rand.Seed(time.Now().UTC().UnixNano())
 	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
 	return randName, nil
 }
