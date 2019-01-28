@@ -51,7 +51,11 @@ func main() {
 
 	e.GET("/", indexRender)
 
-	e.Logger.Fatal(e.Start(":80"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
+	e.Logger.Fatal(e.Start(":" + port))
 }
 
 func indexRender(c echo.Context) error {
