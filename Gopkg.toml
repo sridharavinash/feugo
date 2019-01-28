@@ -26,7 +26,7 @@
 
 
 [metadata.heroku]
-    root-package = "feugo"
+    root-package = "github.com/sridharavinash/feugo"
 
 [[constraint]]
   name = "github.com/labstack/echo"
