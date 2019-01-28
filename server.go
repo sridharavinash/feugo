@@ -51,7 +51,7 @@ func main() {
 
 	e.GET("/", indexRender)
 
-	e.Logger.Fatal(e.Start(":3434"))
+	e.Logger.Fatal(e.Start(":8081"))
 }
 
 func indexRender(c echo.Context) error {
