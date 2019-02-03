@@ -16,6 +16,10 @@ import (
 	"github.com/labstack/echo"
 )
 
+var (
+	songs []string
+)
+
 type SongItem struct {
 	Song string `json:"song"`
 }
@@ -67,6 +71,12 @@ func indexRender(c echo.Context) error {
 }
 
 func getNames() (string, error) {
+	if len(songs) > 0 {
+		return randomizeNames()
+	}
+	return getSongsFromAPI()
+}
+func getSongsFromAPI() (string, error) {
 	apikey := os.Getenv("PHISH_NET_API")
 	if apikey == "" {
 		fmt.Println("No Phish.net API env variable set")
@@ -95,19 +105,22 @@ func getNames() (string, error) {
 		return "", err
 	}
 
-	var songs []string
 	fullSongs := apiResponse.ResponseData.Data
+	fmt.Println("Songs len:", len(fullSongs))
 	for i := 0; i < len(fullSongs); i++ {
 		songs = append(songs, makeSlug(fullSongs[i].Song))
 	}
-
-	rand.Seed(time.Now().UTC().UnixNano())
-	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
-	return randName, nil
+	return randomizeNames()
 }
 
 func makeSlug(s string) string {
 	tempString := strings.ToLower(s)
 
 	return slug.Make(tempString)
+}
+
+func randomizeNames() (string, error) {
+	rand.Seed(time.Now().UTC().UnixNano())
+	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
+	return randName, nil
 }
