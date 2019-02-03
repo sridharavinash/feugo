@@ -44,6 +44,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	e := echo.New()
 	e.Static("/static", "assets")
 
@@ -120,7 +121,6 @@ func makeSlug(s string) string {
 }
 
 func randomizeNames() (string, error) {
-	rand.Seed(time.Now().UTC().UnixNano())
 	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
 	return randName, nil
 }
