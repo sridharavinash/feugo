@@ -121,6 +121,15 @@ func makeSlug(s string) string {
 }
 
 func randomizeNames() (string, error) {
-	randName := songs[rand.Intn(len(songs))] + "-" + songs[rand.Intn(len(songs))]
-	return randName, nil
+	songsLen := len(songs)
+	randName := songs[rand.Intn(songsLen)] + "-" + songs[rand.Intn(songsLen)]
+	splitNames := strings.Split(randName, "-")
+	rand.Shuffle(len(splitNames), func(i, j int) {
+		splitNames[i], splitNames[j] = splitNames[j], splitNames[i]
+	})
+	if len(splitNames) < 3 {
+		return fmt.Sprintf("%s-%s", splitNames[0], splitNames[1]), nil
+	}
+	trigram := fmt.Sprintf("%s-%s-%s", splitNames[0], splitNames[1], splitNames[2])
+	return trigram, nil
 }
